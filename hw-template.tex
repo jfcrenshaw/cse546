@@ -6,6 +6,7 @@
 \usepackage{graphicx}
 \usepackage{fancyhdr}
 \usepackage{listings}
+\usepackage{changepage}
 
 % some math commands
 \newcommand{\T}{^{\textrm T}} % transpose
@@ -19,7 +20,8 @@
 \setlength\parindent{0px}
 % enumerate with lowercase letters
 \renewcommand{\theenumi}{\alph{enumi}}
-
+% indented environment for solutions
+\newenvironment{solution}{\begin{adjustwidth}{8mm}{}}{\end{adjustwidth}}
 
 
 % due date
@@ -32,18 +34,19 @@
         \normalsize{John Franklin Crenshaw}}
 \maketitle
 
-Collaborators: Sam Tetef
+Collaborators: names of people I worked with
 
 \section*{Section 1}
 
-A.1
+A.1 Problem statement
 \begin{enumerate}
-        \item One thing
-        \item Another thing!
+        \item Part a of the problem
+                \begin{solution}
+                        This is a solution
+                \end{solution}
+        \item Part b of the problem
 \end{enumerate}
 
-
-B.1
 
 
 
