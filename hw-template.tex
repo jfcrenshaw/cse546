@@ -2,39 +2,49 @@
 
 % import packages
 \usepackage{amsmath,amsfonts,amsthm,amssymb,amsopn,bm}
+\usepackage{mathtools}
 \usepackage[margin=.9in]{geometry}
 \usepackage{graphicx}
-\usepackage{fancyhdr}
-\usepackage{listings}
-\usepackage{changepage}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{minted}
+\usepackage{subcaption}
+\usepackage{float}
+
+% note command
+\newcommand{\note}[1]{\textsf{\textcolor{Red}{#1}}}
 
 % some math commands
-\newcommand{\T}{^{\textrm T}} % transpose
 \newcommand{\norm}[1]{\left\|#1\right\|}
 \newcommand{\twonorm}[1]{\|#1\|_2^2}
-\newcommand{\vct}[1]{\boldsymbol{#1}} % vector
-\newcommand{\mat}[1]{\boldsymbol{#1}} % matrix
-\newcommand{\E}{\mathbb{E}} % expectation
+\newcommand{\vect}[1]{\boldsymbol{#1}} % vector 
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator{\cov}{Cov}
+\DeclareMathOperator{\var}{Var}
 
 % remove indents
 \setlength\parindent{0px}
 % enumerate with lowercase letters
 \renewcommand{\theenumi}{\alph{enumi}}
 % indented environment for solutions
+\usepackage{changepage}
 \newenvironment{solution}{\begin{adjustwidth}{8mm}{}}{\end{adjustwidth}}
 
 
-% due date
-\date{\normalsize{October 5, 2020}}
+% Homework title and date
+\renewcommand{\title}{Homework 0 A}
+\renewcommand{\date}{October 5, 2020}
 
 \begin{document}
 
-\title{Homework 0 A/B}
-\author{\normalsize{Fall 2020, CSE 546: Machine Learning} \\ 
-        \normalsize{John Franklin Crenshaw}}
-\maketitle
+\begin{center}
+        \LARGE \title \\ \vspace{10pt}
+        \normalsize 
+        Fall 2020, CSE 546: Machine Learning \\ \vspace{2pt}
+        John Franklin Crenshaw \\ \vspace{2pt}
+        \date
+\end{center}
 
-Collaborators: names of people I worked with
+%Collaborators:
 
 \section*{Section 1}
 
