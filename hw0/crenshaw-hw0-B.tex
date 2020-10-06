@@ -2,49 +2,151 @@
 
 % import packages
 \usepackage{amsmath,amsfonts,amsthm,amssymb,amsopn,bm}
+\usepackage{mathtools}
 \usepackage[margin=.9in]{geometry}
 \usepackage{graphicx}
-\usepackage{fancyhdr}
-\usepackage{listings}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{minted}
+\usepackage{subcaption}
+\usepackage{float}
+
+% note command
+\newcommand{\note}[1]{\textsf{\textcolor{Red}{#1}}}
 
 % some math commands
-\newcommand{\T}{^{\textrm T}} % transpose
 \newcommand{\norm}[1]{\left\|#1\right\|}
 \newcommand{\twonorm}[1]{\|#1\|_2^2}
-\newcommand{\vct}[1]{\boldsymbol{#1}} % vector
-\newcommand{\mat}[1]{\boldsymbol{#1}} % matrix
-\newcommand{\E}{\mathbb{E}} % expectation
+\newcommand{\vect}[1]{\boldsymbol{#1}} % vector 
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator{\cov}{Cov}
+\DeclareMathOperator{\var}{Var}
 
 % remove indents
 \setlength\parindent{0px}
 % enumerate with lowercase letters
 \renewcommand{\theenumi}{\alph{enumi}}
+% indented environment for solutions
+\usepackage{changepage}
+\newenvironment{solution}{\begin{adjustwidth}{8mm}{}}{\end{adjustwidth}}
 
 
-
-% due date
-\date{\normalsize{October 5, 2020}}
+% Homework title and date
+\renewcommand{\title}{Homework 0 B}
+\renewcommand{\date}{October 5, 2020}
 
 \begin{document}
 
-\title{Homework 0 A/B}
-\author{\normalsize{Fall 2020, CSE 546: Machine Learning} \\ 
-        \normalsize{John Franklin Crenshaw}}
-\maketitle
+\begin{center}
+        \LARGE \title \\ \vspace{10pt}
+        \normalsize 
+        Fall 2020, CSE 546: Machine Learning \\ \vspace{2pt}
+        John Franklin Crenshaw \\ \vspace{2pt}
+        \date
+\end{center}
 
-Collaborators: Sam Tetef
+%Collaborators:
 
-\section*{Section 1}
+\section*{Probability and Statistics}
 
-A.1
+\textbf{B.1}
+Let $X_1,\dots,X_n$ be $n$ independent and identically distributed random variables drawn uniformly at random from $[0,1]$.
+If $Y = \max \{X_1,\dots,X_n\}$ then find $\E[Y]$. \newline
+
+\begin{solution}
+        Let $F_X(x)$ be the CDF and $f_X(x)$ be the PDF of the uniform distribution from which $X$ is drawn.
+        As the distribution is uniform on 0 to 1, $f_X(x) = 1$ in this domain and zero elsewhere.
+        Therefore,
+        \begin{align*}
+                F_X(x) = \int_{-\infty}^{x} f_X(x') dx' = \int_0^x dx' = x.
+        \end{align*}
+        Now the probability that the max of $\{X_1,\dots,X_n\}$ is less than $y$ is
+        \begin{align*}
+                F_Y(y) = P(\max\{X_1,\dots,X_n\} < y) 
+                = \prod_{i=1}^n P(X_i < y) 
+                = \prod_{i=1}^n F_X(y)
+                = \prod_{i=1}^n y
+                = y^n.
+        \end{align*}
+        Taking the derivative of this CDF, we get the PDF:
+        \begin{align*}
+                f_Y(y) = \frac{d}{dy} F_Y(y) = n y^{n-1}.
+        \end{align*}
+        Finally, we can calculate $\E[Y]$:
+        \begin{align*}
+                \E[Y] = \int_{-\infty}^{\infty} y f_Y(y) dy
+                = \int_0^1 y \cdot n y^{n-1}
+                = \frac{n}{n+1}
+        \end{align*}
+
+\end{solution}
+
+\textbf{B.2}
+Let $X$ be a random variable with $\E[X] = \mu$ and $\E[(X-\mu)^2] = \sigma^2$.
+For any $x \geq 0$, use Markov's inequality to show that $\mathbb{P}(X \geq \mu + \sigma x) \leq 1/x^2$.
+
+\begin{solution}
+        Using Markov's Inequality, $\mathbb{P}(X \geq a) = \frac{\E[X]}{a}$, we have
+        \begin{align*}
+                \mathbb{P}(X \geq \mu + \sigma x)
+                = \mathbb{P}[(X - \mu)^2 \geq \sigma^2 x^2] 
+                \leq \frac{\E[(X - \mu)^2]}{\sigma^2 x^2} = \frac{\sigma^2}{\sigma^2 x^2} = \frac{1}{x^2}.
+        \end{align*}
+        Thus, $\mathbb{P}(X \geq \mu + \sigma x) \leq 1/x^2$.
+\end{solution}
+
+
+\section*{Linear Algebra and Vector Calculus}
+
+\textbf{B.3}
+The \textit{trace} of a matrix is the sum of the diagonal entries; $\text{Tr}(A) = \sum_i A_{ii}$.
+If $A \in \mathbb{R}^{n \times m}$ and $B \in \mathbb{R}^{m \times n}$, show that $\text{Tr}(AB) = \text{Tr}(BA)$.
+
+\begin{align*}
+        \text{Tr}(AB) 
+        = \sum_i [AB]_{ii}
+        = \sum_i \left( \sum_j A_{ij} B_{ji} \right)
+        = \sum_j \left( \sum_i B_{ji} A_{ij} \right)
+        = \sum_j [AB]_{jj}
+        = \text{Tr}(BA) 
+\end{align*}
+
+\textbf{B.4}
+Let $v_1,\dots,v_n$ be a set of non-zero vectors in $\mathbb{R}^d$.
+Let $V = [v_1, \dots, v_n]$ be the vectors concatenated.
+
 \begin{enumerate}
-        \item One thing
-        \item Another thing!
+        \item What is the minimum and maximum rank of $\sum_{i=1}^n v_i v_i^T$?
+        \begin{solution}
+                Let $M = \sum_{i=1}^n v_i v_i^T$.
+                As the vectors $v_i$ are in $\mathbb{R}^d$, at most $d$ of them can be linearly independent.
+                Of course, if $n < d$, then at most $n$ vectors can be linearly independent.
+                If you imagine the case where $v_1, \dots, v_n$ are drawn from an orthonormal basis of $\mathbb{R}^d$, then you can see that $\text{rank}(M) \leq \min(n,d)$.
+                We can also imagine the case where all of the vectors are the same.
+                Then $\text{rank}(M) = 1$.
+                The rank cannot be zero, as the vectors are non-zero.
+                Therefore, $1 \leq \text{rank}(M) \leq \min(n,d)$.
+        \end{solution}
+        \item What is the minimum and maximum rank of $V$?
+        \begin{solution}
+                The argument from part a works here as well, just replacing $N$ for $V$.
+                Thus $1 \leq \text{rank}(V) \leq \min(n,d)$.
+        \end{solution}
+        \item Let $A \in \mathbb{R}^{D \times d}$ for $D > d$.
+                What is the minimum and maximum rank of $\sum_{i=1}^n (Av_i)(Av_i)^T$?
+        \begin{solution}
+                The resultant matrix is $AMA^T \in \mathbb{R}^{D \times D}$, where $M$ is defined above.
+                Despite being a matrix with $D$ columns and rows, it cannot have greater rank than $M$.
+                This can be seen via the same arguments given in part a, because acting on $n$ vectors in $\mathbb{R}^d$ with the same linear transformation cannot result in more linearly independent vectors than you started with.
+                However, multiplying by $A$ can \textit{reduce} the rank, as the image of $A$ may be lower dimensional than the set of $v_i$.
+                So $1 \leq \text{rank}(AMA^T) \leq \min(n,d, \text{rank}(A))$.
+        \end{solution}
+        \item What is the minimum and maximum rank of $AV$?
+                What if V is rank $d$?
+        \begin{solution}
+                Again, we can use the same argument as we did in part c.
+                Thus $1 \leq \text{rank}(AV) \leq \min(n,d, \text{rank}(A))$.
+        \end{solution}
 \end{enumerate}
-
-
-B.1
-
 
 
 \end{document}
