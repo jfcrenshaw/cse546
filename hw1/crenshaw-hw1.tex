@@ -178,8 +178,15 @@ Thus $\hat{\theta} = \max \{x_i\}_{i=1}^N$.
         This is why the true error needs to be estimated on the test set.
 
         \item
-        \note{COME BACK TO THIS}
-
+        Starting from the hint, we have
+        \begin{align*}
+                \E_\text{train,test}[\hat{\epsilon}_\text{test}(\hat{f}_\text{train})]
+                &= \sum_{f \in \mathcal{F}} \E_\text{test}[\hat{\epsilon}_\text{test}(f)] \mathbb{P}_\text{train}(\hat{f}_\text{train} = f) \\
+                &= \sum_{f \in \mathcal{F}} \E_\text{train}[\hat{\epsilon}_\text{train}(f)] \mathbb{P}_\text{train}(\hat{f}_\text{train} = f)
+                \geq \E_\text{train}[\hat{\epsilon}_\text{train}(\hat{f}_\text{train}],
+        \end{align*}
+        where the first equality on the second line uses the result of part a.
+        The sum on the second line is averaging the expectation over all the functions $f \in \mathcal{F}$, which usually have greater uncertainty than the optimal $f$, so this average is greater than or equal to the error for the optimal $f$.
 \end{enumerate}
 
 \newpage
@@ -187,7 +194,125 @@ Thus $\hat{\theta} = \max \{x_i\}_{i=1}^N$.
 \section*{Bias-Variance Tradeoff}
 
 \textbf{B.1}
-\note{COME BACK TO THIS}
+
+\begin{enumerate}
+        \item The complexity scales inversely with $m$, so I expect small $m$ to have low bias, high variance and I expect large $m$ to have the opposite.
+        \item Let's expand $\E[\hat{f}_m(x_i)]$:
+        \begin{align*}
+                \E[\hat{f}_m(x_i)] 
+                &= \E \left[ ~ \sum_{j=1}^{n/m} \, c_j \, \mathbf{1}\{x_i \in \left( \frac{(j-1)m}{n} , \frac{jm}{n}\right]\} ~ \right] \\
+                &= \frac{1}{m} \sum_{j=1}^{n/m} \, \sum_{k=(j-1)m+1}^{jm} \, \E[y_k] \, \mathbf{1}\{x_i \in \left( \frac{(j-1)m}{n} , \frac{jm}{n}\right]\} \\
+                &= \frac{1}{m} \sum_{j=1}^{n/m} \, \sum_{k=(j-1)m+1}^{jm} \, f(x_k) \, \mathbf{1}\{x_i \in \left( \frac{(j-1)m}{n} , \frac{jm}{n}\right]\} \\
+                &= \sum_{j=1}^{n/m} \, \bar{f}^{(j)} \, \mathbf{1}\{x_i \in \left( \frac{(j-1)m}{n} , \frac{jm}{n}\right]\}
+                = \bar{f}^{(j \ni x_i)},
+        \end{align*}
+        where I used the provided definitions for $\hat{f}_m(x_i)$, $c_j$, $y_k$, and $\bar{f}^{(j)}$, respectively, and in the final line I define $j \ni x_i$ as ``the bin $j$ to which the point $x_i$ belongs.''
+        Now, we have
+        \begin{align*}
+                \frac{1}{n} \sum_{i=1}^n \left( \E[\hat{f}_m(x_i)] - f(x_i) \right)^2
+                = \frac{1}{n} \sum_{i=1}^n \left( \bar{f}^{(j \ni x_i)} - f(x_i) \right)^2.
+        \end{align*}
+        Instead of directly summing over every point $x_i$, we can instead sum over every bin $j$ while summing over all the points in each bin.
+        Redefining the index $i$ to count over the points in a given bin $j$, we have
+        \begin{align*}
+                \frac{1}{n} \, \sum_{i=1}^n \left( \E[\hat{f}_m(x_i)] - f(x_i) \right)^2
+                = \frac{1}{n} \sum_{j=1}^{n/m} \, \sum_{i=(j-1)m+1}^{jm} \, (\bar{f}^{(j)} - f(x_i))^2,
+        \end{align*}
+        which is the desired result.
+
+        \item Plugging in the result for $\E[\hat{f}_m(x_i)]$ above,
+        \begin{align*}
+                \E \left[ \frac{1}{n} \sum_{i=1}^n (\hat{f}_m(x_i) - \E[\hat{f}_m(x_i)])^2 \right]
+                &= \E \left[ \frac{1}{n} \sum_{i=1}^n (\hat{f}_m(x_i) - \bar{f}^{(j \ni x_i)})^2 \right] \\
+                &= \E \left[ \frac{1}{n} \sum_{i=1}^n (c_{j \ni x_i} - \bar{f}^{(j \ni x_i)})^2 \right] \\
+                &= \E \left[ \frac{1}{n} \sum_{j=1}^{n/m} \sum_{i=(j-1)m+1}^{jm} (c_j - \bar{f}^{(j)})^2 \right] \\
+                &= \E \left[ \frac{1}{n} \sum_{j=1}^{n/m} m (c_j - \bar{f}^{(j)})^2 \right] 
+                = \frac{1}{n} \sum_{j=1}^{n/m} m \E \left[ (c_j - \bar{f}^{(j)})^2 \right].
+        \end{align*}
+        In the second line, I plugged in the definition of $\hat{f}_m(x_i)$, again using the compact notation $j \ni x_i$ to denote the bin $j$ to which the point $x_i$ belongs.
+        In the third line, I again converted the direct sum over $x_i$ to a sum over bins $j$ while summing over the points $i$ in each bin.
+        In the fourth line, I use the fact that the summand is independent of $i$, then apply linearity of expectation.
+        This proves the first equality.
+
+        Now, using the definitions of $c_j$ and $\bar{f}^{(j)}$, we have
+        \begin{align*}
+                \E \left[ (c_j - \bar{f}^{(j)})^2 \right] 
+                &= \E \left[ \left( \frac{1}{m} \sum_{i=(j-1)m+1}^{jm} (y_i - f(x_i)) \right)^2 \right] \\
+                &=  \E \left[ \left( \frac{1}{m} \sum_{i=(j-1)m+1}^{jm} \epsilon_i \right)^2 \right] \\
+                &=  \E \left[ \frac{1}{m^2} \sum_{i=(j-1)m+1}^{jm} (\epsilon_i^2 + \text{cross terms}) \right] \\
+                &= \frac{1}{m^2} \sum_{i=(j-1)m+1}^{jm} \left( \, \E[\epsilon_i^2] + \E[\text{cross terms}] \, \right) \\
+                &= \frac{1}{m^2} \sum_{i=(j-1)m+1}^{jm} \sigma^2,
+        \end{align*}
+        where in the last line, I used $\var(\epsilon) = \sigma^2 = \E[\epsilon^2] - \E[\epsilon]^2 = \E[\epsilon^2]$, and $E[\text{cross terms}] = 0$, as the noises $\epsilon_i$ are uncorrelated.
+        Plugging this in above, we have
+        \begin{align*}
+                \frac{1}{n} \sum_{j=1}^{n/m} m \E \left[ (c_j - \bar{f}^{(j)})^2 \right]
+                &= \frac{1}{n} \sum_{j=1}^{n/m} m \cdot \frac{1}{m^2} \sum_{i=(j-1)m+1}^{jm} \sigma^2 \\
+                &= \frac{1}{mn} \left( \sum_{j=1}^{n/m} \sum_{i=(j-1)m+1}^{jm} \sigma^2 \right) = \frac{\sigma^2}{m}.
+        \end{align*}
+        Thus we have the final result, 
+        \begin{align*}
+                \E \left[ \frac{1}{n} \sum_{i=1}^n (\hat{f}_m(x_i) - \E[\hat{f}_m(x_i)])^2 \right]
+                = \frac{1}{n} \sum_{j=1}^{n/m} m \E \left[ (c_j - \bar{f}^{(j)})^2 \right]
+                = \frac{\sigma^2}{m}
+        \end{align*}
+        \item \,
+        \begin{center}
+                \includegraphics[width=0.5\linewidth]{B1d.pdf}
+        \end{center}
+        \begin{minted}{python}
+import numpy as np
+import matplotlib.pyplot as plt
+
+# set random seed
+np.random.seed(11)
+# create m and x grids
+M = np.array([1, 2, 4, 8, 16, 32])
+x = np.linspace(1/256, 1, 256)
+
+# f and its estimator, fbar
+f = 4 * np.sin(np.pi * x) * np.cos(6*np.pi * x**2)
+fbar = lambda m: f.reshape(-1,m).mean(axis=1).repeat(m)
+# y and its estimator, yhat
+y = np.random.normal(f, 1)
+fhat = lambda m: y.reshape(-1,m).mean(axis=1).repeat(m)
+
+# the four quantities to plot
+avg_emp_err = lambda m: np.mean( (fhat(m) - f)**2 )
+avg_bias_sq = lambda m: np.mean( (fbar(m) - f)**2 )
+avg_var = lambda m: 1/m
+avg_err = lambda m: avg_bias_sq(m) + avg_var(m)
+
+# make the plot
+fig = plt.figure(figsize=(4,4), constrained_layout=True)
+plt.plot(M, [avg_emp_err(m) for m in M], label='Avg. Emp. Err.')
+plt.plot(M, [avg_bias_sq(m) for m in M], label='Avg. Bias Sq.')
+plt.plot(M, [avg_var(m) for m in M], label='Avg. Variance')
+plt.plot(M, [avg_err(m) for m in M], label='Avg. Err.')
+plt.legend()
+plt.xlabel('$m$')
+        \end{minted}
+        \item 
+        The $L$-Lipschitz condition tells us that the maximum absolute value of the slope is $L$.
+        The square difference $(\bar{f}^{(j)} - f(x_i))^2$ for each bin is strictly less than the square difference $(\max_{x_i \in j} f(x_i) - \min_{x_i \in j} f(x_i))^2$, which is less than or equal to $(L \cdot m/n)^2$, which is the difference assuming the function is monotonic with the maximum slope across the bin.
+        Thus, the average biased squared is $\mathcal{O}(\frac{L^2 m^2}{n^2})$.
+
+        Using the formula for variance above, total error is $\mathcal{O}(\frac{L^2 m^2}{n^2} + \frac{\sigma^2}{m})$.
+        Taking the derivative with respect to $m$ and setting equal to zero:
+        \begin{align*}
+                \frac{2L^2m}{n^2} - \frac{\sigma^2}{m^2} = 0 
+                ~ \Longrightarrow ~
+                m^3 = \frac{1}{2}\frac{n^2 \sigma^2}{L^2}.
+        \end{align*}
+        This scales as expected.
+        To see this, remember that complexity scales inversely with $m$.
+        Thus if $L$ is large or $\sigma^2$ is small, we want a more complex model, which is expected for a quickly-changing variable with little noise.
+        Furthermore, as you get more data points, you can afford to include more points in each bin, so $m$ goes up with $n$, but not quite as fast: as you get more data points, the resolution of the bins can increase. 
+
+        Plugging this value of $m$ back into the error, we find that the error scales like $\mathcal{O}((\frac{L\sigma^2}{n})^{2/3})$.
+        This is also as we expect: if the variable changes quickly and has high noise, we expect more error.
+        We also expect less error as we increase the number of data points.
+\end{enumerate}
 
 \newpage
 
