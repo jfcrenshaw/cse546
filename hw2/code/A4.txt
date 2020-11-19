@@ -1,0 +1,61 @@
+# set params
+n = 500
+d = 1000
+k = 100
+sig = 1
+
+# generate data
+np.random.seed(0)
+X = np.random.normal(0, 1, (n,d))
+w = np.arange(1,d+1)/k; w[k:] = 0
+y = np.random.normal(X @ w, sig)
+
+# initialize model
+wH = np.zeros(len(w)) # w hat
+bH = 0 # b hat
+
+# set initial values
+lam = max(np.abs(2 * X.T @ (y - y.mean()))) # initial lambda
+sparsity = 0 # set initial sparsity
+
+# values to save
+lambdas = []
+sparsities = []
+fdr = []
+tpr = []
+
+# pre-calculate values
+a = 2*(X**2).sum(axis=0)
+XTX_diag = (X.T @ X).diagonal()
+X_0diag = X.copy(); np.fill_diagonal(X_0diag, 0)
+
+# regularization path
+while sparsity <= 0.8*k:
+    
+    dwH = np.ones(len(w)) # set initial dwH
+    
+    # coordinate descent
+    while max(np.abs(dwH)) > 1e-2:
+
+        # update bH
+        bH = np.mean(y - X @ wH)
+
+        # calculate c
+        c = 2 * X.T @ (y - (bH + X @ wH)) + 2 * XTX_diag * wH
+
+        # update wH
+        c[np.where((c >= -lam) & (c <= lam))] = 0
+        dwH = (c - np.sign(c)*lam)/a - wH
+        wH += dwH
+        
+    # save values
+    lambdas.append(lam)
+    sparsity = len(wH[np.abs(wH) > 0])
+    sparsities.append(sparsity)
+    fdr.append( len(wH[(w == 0) & (wH != 0)]) / np.clip(len(wH[wH!= 0]), 1, None) )
+    tpr.append( len(wH[(w != 0) & (wH != 0)]) / k )
+    
+    print(f'{sparsity:<4}{lam:>7.2f}')
+    
+    # new lambda
+    lam /= 1.05
